@@ -4,7 +4,7 @@
 * You can connect a gamepad(e.g., Xbox) to it.
 
 ## Requirements
-* Qt5(>5.7)
+* Qt5(5.11) (Should be working on > 5.7)
 * qmake(>3,0) or cmake(>3.0)
 
 ## Installation
