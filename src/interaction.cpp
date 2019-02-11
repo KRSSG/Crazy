@@ -7,7 +7,8 @@ Interaction::Interaction(QObject *parent):QObject(parent){
     frequency.append(8);                        stringFrequency.append("8");
     address.append(QHostAddress("10.12.225.78"));   stringAddress.append("10.12.225.78");
     address.append(QHostAddress("10.12.225.109"));  stringAddress.append("10.12.225.109");
-    addressIndex = 0;
+    address.append(QHostAddress("127.0.0.1"));  stringAddress.append("127.0.0.1");
+    addressIndex = 2;
     radioPacket->updateAddress(address[addressIndex]);
     frequencyIndex = 1;
 }

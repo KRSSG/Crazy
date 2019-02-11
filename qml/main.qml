@@ -7,8 +7,8 @@ import QtGamepad 1.0
 import ZSS 1.0 as ZSS
 ApplicationWindow{
     visible:true;
-    height:630;
-    width:500;
+    height:680;
+    width:650;
     color: "#333"
     id:window;
     ZSS.Interaction { id : interaction; }
@@ -29,6 +29,8 @@ ApplicationWindow{
     }
     Column{
         anchors.fill:parent;
+//        padding: 10;
+        rightPadding: 10;
         Grid{
             id:radioRectangle;
             width:parent.width;
@@ -95,14 +97,29 @@ ApplicationWindow{
                         onClicked: clickEvent();
                         function clickEvent(){
                             interaction.sendStartPacket(frequency.currentIndex);
-                            switch(frequency.currentIndex){
-                            case 0:
-                                console.log("Connect to Frequency 6");break;
-                            case 1:
-                                console.log("Connect to Frequency 8");break;
-                            default:
-                                console.log("Frequency ERROR !");break;
+                            if((frequency.currentIndex < frequency.model.length) && (address.currentIndex < address.model.length) ){
+                                console.log("Connected at IP: ",address.model[address.currentIndex], " freq: ",frequency.model[frequency.currentIndex]);
                             }
+                            else{
+                                if((frequency.currentIndex >= frequency.model.length) && (address.currentIndex >= address.model.length)){
+                                    console.log("Size of freq and addr out of bound");
+                                }
+                                else if(frequency.currentIndex >= frequency.model.length){
+                                    console.log("Size of freq out of bound");
+                                }
+                                else{
+                                    console.log("Size of add out of bound");
+                                }
+                            }
+
+//                            switch(frequency.currentIndex){
+//                            case 0:
+//                                console.log("Connect to Frequency 6");break;
+//                            case 1:
+//                                console.log("Connect to Frequency 8");break;
+//                            default:
+//                                console.log("Frequency ERROR !");break;
+//                            }
                         }
                     }
                 }
@@ -114,7 +131,7 @@ ApplicationWindow{
                     Grid{
                         bottomPadding: 5;
                         id : crazyShow;
-                        columns: 6;
+                        columns: 8;
                         columnSpacing: 10;
                         padding:0;
                         width:parent.width;
@@ -142,25 +159,77 @@ ApplicationWindow{
                         property int velocityMax : 511;
                         property int dribbleMaxLevel : 3;
                         property int kickPowerMax: 127;
+                        property int velMode: 1;
+
+                        property int velW1: 0;
+                        property int velW2: 0;
+                        property int velW3: 0;
+                        property int velW4: 0;
+                        property int w1Step: 10;
+                        property int w2Step: 10;
+                        property int w3Step: 10;
+                        property int w4Step: 10;
 
                         ZText{ text:qsTr("Robot");}
                         //max num of robot: 12
                         ZSpinBox{ minimumValue:1; maximumValue:12; value:parent.robotID; width:parent.itemWidth
                             onEditingFinished:{parent.robotID = value}}
-                        ZText{ text:"Stop" }
+                        ZText{ text:"Reset" }
                         Button{ text:qsTr("[Space]"); width:parent.itemWidth}
                         ZText{ text:" "}
                         ZText{ text:" "}
+                        ZText{ text:" "}
+                        ZText{ text:" "}
+
+
+                        ZText{ text:qsTr("VelMode [M]") }
+                        Button{ text:(parent.velMode?qsTr("Linear"):qsTr("Wheel"));width:parent.itemWidth
+                            onClicked: { parent.velMode = !parent.velMode;
+                                   if(parent.velMode == 0){
+                                       parent.velW1 = 0;
+                                       parent.velW2 = 0;
+                                       parent.velW3 = 0;
+                                       parent.velW4 = 0;
+                                   }
+                                   else{
+                                       parent.velX = 0;
+                                       parent.velY = 0;
+                                       parent.velR = 0;
+                                   }
+                            }
+                        }
+
+                        ZText{ text:qsTr("MaxVel") }
+                        //MaxVel:(1, velocityMax)
+                        ZSpinBox{ minimumValue:1; maximumValue:crazyShow.velocityMax; value:parent.m_VEL;width:parent.itemWidth
+                            onEditingFinished:{parent.m_VEL = value;}}
+
+                        ZText{ text:qsTr("MaxVelR") }
+                        //MaxVelR:(1, velocityRMax)
+                        ZSpinBox{ minimumValue:1; maximumValue:crazyShow.velocityRMax; value:parent.m_VELR;width:parent.itemWidth
+                            onEditingFinished:{parent.m_VELR = value;}}
+
+
+
+                        ZText{ text:" " }
+                        ZText{ text:" " }
+
+
                         ZText{ text:qsTr("Vx [W/S]") }
                         //Vx:(-m_VEL, m_VEL)
                         ZSpinBox{ minimumValue:-crazyShow.m_VEL; maximumValue:crazyShow.m_VEL; value:parent.velX;onEditingFinished:{parent.velX = value;}}
                         ZText{ text:qsTr("VxStep") }
                         //VxStep:(1, m_VEL)
                         ZSpinBox{ minimumValue:1; maximumValue:crazyShow.m_VEL; value:parent.velXStep;onEditingFinished:{parent.velXStep = value;}}
-                        ZText{ text:qsTr("MaxVel") }
-                        //MaxVel:(1, velocityMax)
-                        ZSpinBox{ minimumValue:1; maximumValue:crazyShow.velocityMax; value:parent.m_VEL;width:parent.itemWidth
-                            onEditingFinished:{parent.m_VEL = value;}}
+
+                        ZText{ text:qsTr("vW1 [Y/H]") }
+                        //Vx:(0, 255)
+                        ZSpinBox{ minimumValue:0; maximumValue:255; value:parent.velW1;onEditingFinished:{parent.velW1 = value;}}
+                        ZText{ text:qsTr("vW1Step") }
+                        //VxStep:(0, 255)
+                        ZSpinBox{ minimumValue:1; maximumValue:255; value:parent.w1Step;onEditingFinished:{parent.w1Step = value;}}
+
+
                         ZText{ text:qsTr("Vy [A/D]")}
                         //Vy:(-m_VEL, m_VEL)
                         ZSpinBox{ minimumValue:-crazyShow.m_VEL; maximumValue:crazyShow.m_VEL; value:parent.velY;width:parent.itemWidth
@@ -169,8 +238,15 @@ ApplicationWindow{
                         //VyStep:(1, m_VEL)
                         ZSpinBox{ minimumValue:1; maximumValue:crazyShow.m_VEL; value:parent.velYStep;width:parent.itemWidth
                             onEditingFinished:{parent.velYStep = value;}}
-                        ZText{ text:" " }
-                        ZText{ text:" " }
+
+                        ZText{ text:qsTr("vW2 [U/J]") }
+                        //Vx:(0, 255)
+                        ZSpinBox{ minimumValue:0; maximumValue:255; value:parent.velW2;onEditingFinished:{parent.velW2 = value;}}
+                        ZText{ text:qsTr("vW2Step") }
+                        //VxStep:(0, 255)
+                        ZSpinBox{ minimumValue:1; maximumValue:255; value:parent.w2Step;onEditingFinished:{parent.w2Step = value;}}
+
+
                         ZText{ text:qsTr("Vr [Left/Right]") }
                         //Vr:(-m_VEL, m_VEL)
                         ZSpinBox{ minimumValue:-crazyShow.m_VELR; maximumValue:crazyShow.m_VELR; value:parent.velR;width:parent.itemWidth
@@ -179,32 +255,46 @@ ApplicationWindow{
                         //VrStep:(1, m_VELR)
                         ZSpinBox{ minimumValue:1; maximumValue:crazyShow.m_VELR; value:parent.velRStep;width:parent.itemWidth
                             onEditingFinished:{parent.velRStep = value;}}
-                        ZText{ text:qsTr("MaxVelR") }
-                        //MaxVelR:(1, velocityRMax)
-                        ZSpinBox{ minimumValue:1; maximumValue:crazyShow.velocityRMax; value:parent.m_VELR;width:parent.itemWidth
-                            onEditingFinished:{parent.m_VELR = value;}}
+
+
+                        ZText{ text:qsTr("vW3 [I/K]") }
+                        //Vx:(0, 255)
+                        ZSpinBox{ minimumValue:0; maximumValue:255; value:parent.velW3;onEditingFinished:{parent.velW3 = value;}}
+                        ZText{ text:qsTr("vW3Step") }
+                        //VxStep:(0, 255)
+                        ZSpinBox{ minimumValue:1; maximumValue:255; value:parent.w3Step;onEditingFinished:{parent.w3Step = value;}}
+
+
+                        ZText{ text:" " }
+                        ZText{ text:" " }
+
+                        ZText{ text:" " }
+                        ZText{ text:" " }
+
+                        ZText{ text:qsTr("vW4 [O/L]") }
+                        //Vx:(0, 255)
+                        ZSpinBox{ minimumValue:0; maximumValue:255; value:parent.velW4;onEditingFinished:{parent.velW4 = value;}}
+                        ZText{ text:qsTr("vW4Step") }
+                        //VxStep:(0, 255)
+                        ZSpinBox{ minimumValue:1; maximumValue:255; value:parent.w4Step;onEditingFinished:{parent.w4Step = value;}}
+
+
                         ZText{ text:qsTr("Shoot [E]")}
                         Button{ text:(parent.shoot? qsTr("true") : qsTr("false"));width:parent.itemWidth
                             onClicked: { parent.shoot = !parent.shoot;}
                         }
-                        ZText{ text:qsTr("KickMode [Up]") }
-                        Button{ text:(parent.mode?qsTr("chip"):qsTr("flat"));width:parent.itemWidth
+                        ZText{ text:qsTr("Kick [Up]") }
+                        Button{ text:(parent.mode?qsTr("true"):qsTr("false"));width:parent.itemWidth
                             onClicked: { parent.mode = !parent.mode }
                         }
-                        ZText{ text:qsTr("KickPower") }
-                        //KickPower:(1, kickPowerMax)
-                        ZSpinBox{ minimumValue:0; maximumValue:parent.kickPowerMax; value:parent.power;width:parent.itemWidth
-                            onEditingFinished:{parent.power = value;}}
+
                         ZText{ text:qsTr("Dribb [Q]") }
                         Button{ text:(parent.dribble ? qsTr("true") : qsTr("false"));width:parent.itemWidth
                             onClicked: { parent.dribble = !parent.dribble;}
                         }
-                        ZText{ text:qsTr("DribLevel") }
-                        //DribLevel:(0, dribbleMaxLevel)
-                        ZSpinBox{ minimumValue:0; maximumValue:crazyShow.dribbleMaxLevel; value:parent.dribbleLevel;width:parent.itemWidth
-                            onEditingFinished:{parent.dribbleLevel = value;}}
-                        ZText{ text:" " }
-                        Rectangle{ width:parent.itemWidth; height:20; color:parent.shoot ? "red" : "lightgrey"; }
+
+//                        ZText{ text:" " }
+//                        Rectangle{ width:parent.itemWidth; height:20; color:parent.shoot ? "red" : "lightgrey"; }
                         // keyboard response
                         Keys.onPressed:getFocus(event);
                         function getFocus(event){
@@ -239,7 +329,23 @@ ApplicationWindow{
                                 crazyShow.updateStop();
                             }
                         }
+                        function updateVelMode(){
+                            crazyShow.velMode = !crazyShow.velMode;
+                            if(crazyShow.velMode == 1){
+                                crazyShow.velW1 = 0;
+                                crazyShow.velW2 = 0;
+                                crazyShow.velW3 = 0;
+                                crazyShow.velW4 = 0;
+                            }
+                            else{
+                                crazyShow.velX = 0;
+                                crazyShow.velY = 0;
+                                crazyShow.velR = 0;
+                            }
+                        }
+
                         function handleKeyboardEvent(e){
+                            console.log(e);
                             switch(e){
                             case 'U':crazyShow.mode = !crazyShow.mode;
                                 break;
@@ -263,12 +369,26 @@ ApplicationWindow{
                                 break;
                             case 'g':crazyShow.rush = !crazyShow.rush; updateRush();
                                 break;
+                            case 'm':crazyShow.updateVelMode();
+                                break;
                             default:
                                 return false;
                             }
                             updateCommand();
                         }
                         function updateCommand(){
+                            if(crazyShow.velMode == 1){
+                                crazyShow.velW1 = 0;
+                                crazyShow.velW1 = 0;
+                                crazyShow.velW1 = 0;
+                                crazyShow.velW1 = 0;
+                            }
+                            else{
+                                crazyShow.velX = 0;
+                                crazyShow.velY = 0;
+                                crazyShow.velR = 0;
+                            }
+
                             interaction.updateCommandParams(crazyShow.robotID,crazyShow.velX,crazyShow.velY,crazyShow.velR,crazyShow.dribble,crazyShow.dribbleLevel,crazyShow.mode,crazyShow.shoot,crazyShow.power);
                         }
                         function updateFromGamepad(){
@@ -348,6 +468,10 @@ ApplicationWindow{
                         Shortcut{
                             sequence:"Space"
                             onActivated:crazyShow.handleKeyboardEvent('S');
+                        }
+                        Shortcut{
+                            sequence:"M"
+                            onActivated:crazyShow.handleKeyboardEvent('m');
                         }
                     }
                     Button{

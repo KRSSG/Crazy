@@ -27,12 +27,17 @@ private:
     bool shoot;
     bool ctrl;
     bool shootMode;//false is "flat kick" and true is "chip kick".
+    bool velMode; //false is linear and true is wheel
     quint8 robotID;
     quint8 packageType = 0x00;
     quint8 gameStatus = 0x00;
     qint16 velX;
     qint16 velY;
     qint16 velR;
+    qint16 velW1;
+    qint16 velW2;
+    qint16 velW3;
+    qint16 velW4;
     quint16 ctrlPowerLevel;
     quint16 shootPowerLevel;
     QHostAddress address;
